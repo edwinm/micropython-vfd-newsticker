@@ -1,38 +1,30 @@
 import time
 import network
 import urequests as requests
-from machine import Pin, Timer
-import gc
+from machine import Pin, Timer, reset
 import vfd_16
 import xmltok2
 import config
 
 display = vfd_16.Display(cs=2, clk=4, sdi=16, dimming=100)
-refresh = False
 
 def main():
     global display
     maxItems = 10
-    SEPARATOR = "  \x01  "
+    SEPARATOR = " \x01\x01\x01 "
     refreshTime = 60 * 30 # 30 minutes
-        
+
     Pin(15, Pin.IN)
-    
-    # GPIO 0 is boot button
-    button = Pin(0, Pin.IN, Pin.PULL_UP)
-    button.irq(trigger=Pin.IRQ_FALLING, handler=resetTicker)
-    
+
     timer = Timer(0)
-    timer.init(mode=Timer.PERIODIC, period=refreshTime * 1000, callback=resetTicker)
-    
+    timer.init(mode=Timer.ONE_SHOT, period=refreshTime * 1000, callback=resetTicker)
+
     customCharacters(display)
-    
+
     display.clear()
     display.write('\x00 Connecting...')
 
     while True:
-        gc.collect()
-        
         do_connect()
 
         display.clear()
@@ -40,18 +32,17 @@ def main():
         print("Fetching " + config.RSS_FEED_URL)
 
         res = requests.get(url=config.RSS_FEED_URL)
-        
+
         display.clear()
         display.write('\x00 Parsing...')
-                
+
         # res.text = res.text.replace('<![CDATA[', '').replace(']]>', '')
 
         items = parseFeed(res.text, maxItems)
-        res = 0
-                
+
         text = SEPARATOR + SEPARATOR.join(items)
 
-        display.ticker(text, 5, stopTickerCallBack)
+        display.ticker(text)
 
 
 def parseFeed(feed, maxItems):
@@ -68,42 +59,34 @@ def parseFeed(feed, maxItems):
             if tag == "item":
                 inItem = True
             elif tag == "title":
-                inTitle = True                
+                inTitle = True
         elif token == xmltok2.END_TAG:
             if tag == "item":
                 inItem = False
             elif tag == "title":
-                inTitle = False                
+                inTitle = False
         elif token == xmltok2.TEXT and inItem and inTitle:
             display.write(chr(ord('0') + (len(items) + 1) % 10), 15)
             skipTitle = False
             for skipWord in config.SKIP_WORDS:
                 if title.find(skipWord) != -1:
                     skipTitle = True
-            if not skipTitle:
+            if skipTitle:
+                print("X " + title)
+            else:
                 title = title.replace('&#039;', '\x02')
                 title = title.replace('&quot;', '\x03')
 
-                print("- " + title)
+                print("> " + title)
                 items.append(title)
             if len(items) == maxItems:
                 break
     return items
     
 
-def stopTickerCallBack():
-    global refresh
-
-    if refresh:
-        refresh = False
-        return True
-    return False
-
-
+# To prevent crashes due to memory leaks, reset before updating feed
 def resetTicker(pin):
-    global refresh
-    print("Reset ticker")
-    refresh = True
+    reset()
 
 
 class TextStream:
