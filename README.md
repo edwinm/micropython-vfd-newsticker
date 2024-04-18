@@ -25,6 +25,9 @@ You can optionally set words so that items containing those words will be skippe
 
 Also set the name of your WiFi access point and the WiFi password.
 
+When all changes are made, upload all Python files to the ESP32.
+A beginners friendly way to do this is by using [Thonny](https://thonny.org/).
+
 > [!NOTE]  
 > Some RSS feeds don't work well. They can be too big causing memory problems
 > or they contain the XML `<![CDATA[` section that the current XML parser can't handle.
