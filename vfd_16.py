@@ -26,7 +26,7 @@ STAND_BY_MODE = const(0x01)
 
 class Display():
 
-    def __init__(self, cs, clk, sdi, spi_id=2, dimming=255, baudrate=20000000):
+    def __init__(self, cs, clk, sdi, spi_id=1, dimming=255, baudrate=20000000):
         self.baudrate = baudrate
         self.spi = SPI(spi_id, sck=Pin(clk), mosi=Pin(sdi))
         self.cs = Pin(cs, Pin.OUT, value=1)
@@ -62,7 +62,7 @@ class Display():
     def light_off(self):
         self.__command((DISPLAY_LIGHT_OFF, NOT_RELEVANT))
 
-    def ticker(self, text, fps=5, callback=False):
+    def ticker(self, text, fps=6, callback=False):
         position = 0
         self.clear()
         
