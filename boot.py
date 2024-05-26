@@ -14,8 +14,6 @@ def main():
     SEPARATOR = " \x01\x01\x01 "
     refreshTime = 60 * 30 # 30 minutes
 
-    Pin(15, Pin.IN)
-
     timer = Timer(0)
     timer.init(mode=Timer.ONE_SHOT, period=refreshTime * 1000, callback=resetTicker)
 
