@@ -6,7 +6,7 @@ import vfd_16
 import xmltok2
 import config
 
-display = vfd_16.Display(cs=2, clk=4, sdi=16, dimming=100)
+display = vfd_16.Display(cs=4, clk=3, sdi=6, spi_id=1, dimming=100)
 
 def main():
     global display
