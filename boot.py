@@ -157,5 +157,15 @@ def customCharacters(display):
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except OSError as exc:
+        print('X Exception occured, errno', exc.errno)
+        print('Reboot in 10 seconds')
+        display.write('Error occured...')
+        timer = Timer(0)
+        timer.init(mode=Timer.ONE_SHOT, period=10 * 1000, callback=resetTicker)
+
+
+
 
