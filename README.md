@@ -32,6 +32,10 @@ A beginners friendly way to do this is by using [Thonny](https://thonny.org/).
 > Some RSS feeds don't work well. They can be too big causing memory problems
 > or they contain the XML `<![CDATA[` section that the current XML parser can't handle.
 
+## Source 
+
+[micropython-vfd-newsticker](https://github.com/edwinm/micropython-vfd-newsticker) (MIT licensed)
+
 ## License
 
-Copyright 2022 [Edwin Martin](https://bitstorm.org/) and released under the [MIT license](LICENSE).
+Copyright 2024 [Edwin Martin](https://bitstorm.org/) and released under the [MIT license](LICENSE).
