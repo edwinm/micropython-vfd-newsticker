@@ -40,7 +40,7 @@ def main():
 
         text = SEPARATOR + SEPARATOR.join(items)
 
-        display.ticker(text)
+        ticker(text)
 
 
 def parseFeed(feed, maxItems):
@@ -154,6 +154,23 @@ def customCharacters(display):
 
 """)
     
+def ticker(text):
+    fps=6
+    position = 0
+    display.clear()
+    
+    while True:
+        if position == len(text):
+            position = 0
+        elif len(text) > 16 and position > len(text) - 16:
+            display.write(text[position:len(text)])
+            display.write(text[0:16 - position], position=len(text) - position)
+
+        if position < len(text):
+            display.write(text[position:position + 16])
+
+        position = position + 1
+        time.sleep_ms(int(1000 / fps))
 
 
 if __name__ == '__main__':

@@ -1,5 +1,5 @@
 # MicroPython VFD driver for 16 segments
-# Version 1.2.0
+# Version 1.3.0
 # 2024, Edwin Martin
 # https://github.com/edwinm/micropython-vfd-driver
 # License: MIT
@@ -58,35 +58,16 @@ class Display():
 
     def light_off(self):
         self.__command((DISPLAY_LIGHT_OFF, NOT_RELEVANT))
-        
+
     def light_off(self):
         self.__command((DISPLAY_LIGHT_OFF, NOT_RELEVANT))
 
-    def ticker(self, text, fps=6, callback=False):
-        position = 0
-        self.clear()
-        
-        while True:
-            if position == len(text):
-                position = 0
-            elif len(text) > 16 and position > len(text) - 16:
-                self.write(text[position:len(text)])
-                self.write(text[0:16 - position], position=len(text) - position)
-
-            if position < len(text):
-                self.write(text[position:position + 16])
-
-            position = position + 1
-            time.sleep_ms(int(1000 / fps))
-            if callback and callback():
-                break
-        
     def define_character(self, num, data):
         char = [CGRAM_DATA_WRITE | num]
         lines = data.split('\n')
         if len(lines) > 7:
             lines.remove('')
-        
+
         for col in range(0, 5):
             byte = 0
             bit = 1
@@ -95,7 +76,7 @@ class Display():
                     byte |= bit
                 bit *= 2
             char.append(byte)
-        
+
         self.__command(char)
 
     def __command(self, commands):
