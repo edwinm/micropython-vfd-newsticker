@@ -8,8 +8,8 @@ Scroll the news items from your favourite news organization on a VFD display.
 
 You need an ESP32 dev board and a 16 segment VFD display:
 
-- DOIT ESP32 devkit v1
-- Futaba 8-MD-06INKM 16 segment VFD display
+- Esp32 C3 Supermini board
+- Futaba 16 segment VFD display
 
 ## Micropython
 
@@ -32,9 +32,14 @@ A beginners friendly way to do this is by using [Thonny](https://thonny.org/).
 > Some RSS feeds don't work well. They can be too big causing memory problems
 > or they contain the XML `<![CDATA[` section that the current XML parser can't handle.
 
-## Source 
+## Source
 
-[micropython-vfd-newsticker](https://github.com/edwinm/micropython-vfd-newsticker) (MIT licensed)
+The source of this project is writting in Python.
+
+[micropython-vfd-newsticker](https://github.com/edwinm/micropython-vfd-newsticker) (news ticker)
+[micropython-vfd-driver](https://github.com/edwinm/micropython-vfd-driver) (VFD 16 segment driver)
+
+Both are MIT licensed.
 
 ## License
 
