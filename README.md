@@ -4,6 +4,10 @@
 
 Scroll the news items from your favourite news organization on a VFD display.
 
+## Build instructions
+
+See [News ticker](https://www.hackster.io/edwin-martin/news-ticker-e4761e) on hackster.io for full build instructions.
+
 ## Hardware
 
 You need an ESP32 dev board and a 16 segment VFD display:
