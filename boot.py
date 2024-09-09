@@ -72,8 +72,10 @@ def parseFeed(feed, maxItems):
             if skipTitle:
                 print("X " + title)
             else:
-                title = title.replace('&#039;', '\x02')
-                title = title.replace('&quot;', '\x03')
+                title = title.replace('&#039;', '\x03')
+                title = title.replace('\u2018', '\x02')
+                title = title.replace('\u2019', '\x03')
+                title = title.replace('&quot;', '\x04')
 
                 print("> " + title)
                 items.append(title)
@@ -136,6 +138,16 @@ def customCharacters(display):
     
     display.define_character(2,
 """
+   *
+  *
+  *
+
+
+
+""")
+    
+    display.define_character(3,
+"""
   *
   *
  *
@@ -143,8 +155,8 @@ def customCharacters(display):
 
 
 """)
-
-    display.define_character(3,
+    
+    display.define_character(4,
 """
  * *
  * *
