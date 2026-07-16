@@ -34,8 +34,6 @@ def main():
         display.clear()
         display.write('\x00 Parsing...')
 
-        # res.text = res.text.replace('<![CDATA[', '').replace(']]>', '')
-
         items = parseFeed(res.text, maxItems)
 
         text = SEPARATOR + SEPARATOR.join(items)

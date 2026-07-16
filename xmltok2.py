@@ -128,13 +128,32 @@ class XMLTokenizer:
                     self.expect("?")
                     self.expect(">")
                 elif self.match("!"):
-                    self.expect("-")
-                    self.expect("-")
-                    last3 = ''
-                    while True:
-                        last3 = last3[-2:] + self.getch()
-                        if last3 == "-->":
-                            break
+                    if self.match("["):
+                        if self.getident() != "CDATA":
+                            raise XMLSyntaxError
+                        self.expect("[")
+                        text = ""
+                        while True:
+                            c = self.getch()
+                            if not c:
+                                raise XMLSyntaxError
+                            text += c
+                            if text.endswith("]]>"):
+                                text = text[:-3]
+                                break
+                        if text:
+                            res[0] = TEXT
+                            res[1] = text
+                            res[2] = None
+                            yield res
+                    else:
+                        self.expect("-")
+                        self.expect("-")
+                        last3 = ''
+                        while True:
+                            last3 = last3[-2:] + self.getch()
+                            if last3 == "-->":
+                                break
                 else:
                     res[0] = START_TAG
                     self.putnsident(res)

@@ -33,8 +33,7 @@ When all changes are made, upload all Python files to the ESP32.
 A beginners friendly way to do this is by using [Thonny](https://thonny.org/).
 
 > [!NOTE]  
-> Some RSS feeds don't work well. They can be too big causing memory problems
-> or they contain the XML `<![CDATA[` section that the current XML parser can't handle.
+> Some RSS feeds don't work well. They can be too big, causing memory problems.
 
 ## Source
 
