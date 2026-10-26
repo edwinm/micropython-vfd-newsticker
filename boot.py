@@ -34,20 +34,29 @@ def main():
         display.clear()
         display.write('\x00 Parsing...')
 
-        items = parseFeed(res.text, maxItems)
+        # Parse straight off the socket so the whole feed never has to live in
+        # RAM at once (res.text would buffer the body and a decoded copy). A
+        # read timeout keeps a stalled transfer from freezing the ticker; the
+        # OSError handler below then reboots.
+        try:
+            res.raw.settimeout(15)
+        except Exception:
+            pass
+        items = parseFeed(res.raw, maxItems)
+        res.close()
 
         text = SEPARATOR + SEPARATOR.join(items)
 
         ticker(text)
 
 
-def parseFeed(feed, maxItems):
+def parseFeed(sock, maxItems):
     global display
     inItem = False
     inTitle = False
     items = []
 
-    stream = TextStream(feed)
+    stream = ResponseStream(sock)
 
     for i in xmltok2.tokenize(stream):
         token, title, tag, ns = i
@@ -87,20 +96,75 @@ def resetTicker(pin):
     reset()
 
 
-class TextStream:
-    def __init__(self, text):
-        self.text = text
-        self.position = 0
-        
+class ResponseStream:
+    # Reads an HTTP response body straight off the socket one character at a
+    # time, decoding UTF-8 on the fly, so the whole feed is never buffered in
+    # RAM. parseFeed stops after maxItems, so only the first items get read.
+    def __init__(self, sock, bufsize=64):
+        self.sock = sock
+        self.bufsize = bufsize
+        self.pending = b""
+        self.chars = ""
+        self.pos = 0
+        self.eof = False
+
     def read(self, n):
-        if self.position == len(self.text):
-            return ""
-        
-        char = self.text[self.position]
-        self.position = self.position + 1
+        if self.pos >= len(self.chars):
+            self._decode_more()
+            if self.pos >= len(self.chars):
+                return ""
+        char = self.chars[self.pos]
+        self.pos = self.pos + 1
         return char
-     
-     
+
+    def _decode_more(self):
+        self.chars = ""
+        self.pos = 0
+        while True:
+            cut = self._complete_prefix(self.pending)
+            if cut:
+                self.chars = self.pending[:cut].decode()
+                self.pending = self.pending[cut:]
+                return
+            if self.eof:
+                return
+            chunk = self.sock.read(self.bufsize)
+            if not chunk:
+                self.eof = True
+                if self.pending:
+                    try:
+                        self.chars = self.pending.decode()
+                    except Exception:
+                        self.chars = ""
+                    self.pending = b""
+                return
+            self.pending = self.pending + chunk
+
+    @staticmethod
+    def _complete_prefix(b):
+        # Number of leading bytes that form whole UTF-8 characters; a trailing
+        # partial multi-byte sequence is held back for the next read.
+        n = len(b)
+        if n == 0:
+            return 0
+        i = n - 1
+        while i > 0 and 0x80 <= b[i] <= 0xBF:
+            i = i - 1
+        lead = b[i]
+        if lead < 0x80:
+            expected = 1
+        elif lead < 0xE0:
+            expected = 2
+        elif lead < 0xF0:
+            expected = 3
+        else:
+            expected = 4
+        if n - i < expected:
+            return i
+        return n
+
+
+
 def do_connect():
     wlan = network.WLAN(network.STA_IF)
     wlan.active(True)
